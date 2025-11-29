@@ -1,0 +1,648 @@
+openapi: 3.0.0
+info:
+  title: API de Clínica Médica Didática
+  version: 1.0.0
+  description: Backend didático em Node.js com Express para gerenciar pacientes, médicos e consultas.
+servers:
+  - url: http://localhost:3000/api
+    description: Servidor Local
+tags:
+  - name: Pacientes
+    description: Operações relacionadas a pacientes
+  - name: Médicos
+    description: Operações relacionadas a médicos
+  - name: Consultas
+    description: Operações relacionadas a consultas
+paths:
+  /pacientes:
+    get:
+      tags:
+        - Pacientes
+      summary: Lista todos os pacientes
+      responses:
+        '200':
+          description: Lista de pacientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Paciente'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Pacientes
+      summary: Cria um novo paciente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePacienteDto'
+      responses:
+        '201':
+          description: Paciente criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Paciente'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /pacientes/{id}:
+    get:
+      tags:
+        - Pacientes
+      summary: Busca um paciente pelo ID
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID do paciente
+      responses:
+        '200':
+          description: Detalhes do paciente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Paciente'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+        - Pacientes
+      summary: Atualiza um paciente existente
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID do paciente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePacienteDto'
+      responses:
+        '200':
+          description: Paciente atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Paciente'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      tags:
+        - Pacientes
+      summary: Remove um paciente
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID do paciente
+      responses:
+        '204':
+          description: Paciente removido com sucesso
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /medicos:
+    get:
+      tags:
+        - Médicos
+      summary: Lista todos os médicos
+      responses:
+        '200':
+          description: Lista de médicos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Medico'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Médicos
+      summary: Cria um novo médico
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMedicoDto'
+      responses:
+        '201':
+          description: Médico criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Medico'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /medicos/{id}:
+    get:
+      tags:
+        - Médicos
+      summary: Busca um médico pelo ID
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID do médico
+      responses:
+        '200':
+          description: Detalhes do médico
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Medico'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+        - Médicos
+      summary: Atualiza um médico existente
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID do médico
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMedicoDto'
+      responses:
+        '200':
+          description: Médico atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Medico'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      tags:
+        - Médicos
+      summary: Remove um médico
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID do médico
+      responses:
+        '204':
+          description: Médico removido com sucesso
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /consultas:
+    get:
+      tags:
+        - Consultas
+      summary: Lista todas as consultas
+      responses:
+        '200':
+          description: Lista de consultas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Consulta'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Consultas
+      summary: Cria uma nova consulta
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConsultaDto'
+      responses:
+        '201':
+          description: Consulta criada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Consulta'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /consultas/{id}:
+    get:
+      tags:
+        - Consultas
+      summary: Busca uma consulta pelo ID
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID da consulta
+      responses:
+        '200':
+          description: Detalhes da consulta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Consulta'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+        - Consultas
+      summary: Atualiza uma consulta existente
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID da consulta
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateConsultaDto'
+      responses:
+        '200':
+          description: Consulta atualizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Consulta'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      tags:
+        - Consultas
+      summary: Remove uma consulta
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID da consulta
+      responses:
+        '204':
+          description: Consulta removida com sucesso
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    Paciente:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+        nome:
+          type: string
+          example: "Maria Silva"
+        email:
+          type: string
+          format: email
+          example: "maria.silva@example.com"
+        telefone:
+          type: string
+          example: "11987654321"
+        dataNascimento:
+          type: string
+          format: date
+          example: "1990-05-15"
+        cpf:
+          type: string
+          example: "123.456.789-00"
+        endereco:
+          type: string
+          example: "Rua das Flores, 123"
+      required:
+        - nome
+        - email
+        - telefone
+        - dataNascimento
+        - cpf
+        - endereco
+    CreatePacienteDto:
+      type: object
+      properties:
+        nome:
+          type: string
+          example: "Novo Paciente"
+        email:
+          type: string
+          format: email
+          example: "novo.paciente@example.com"
+        telefone:
+          type: string
+          example: "11999998888"
+        dataNascimento:
+          type: string
+          format: date
+          example: "2000-01-01"
+        cpf:
+          type: string
+          example: "987.654.321-00"
+        endereco:
+          type: string
+          example: "Avenida Principal, 456"
+      required:
+        - nome
+        - email
+        - telefone
+        - dataNascimento
+        - cpf
+        - endereco
+    UpdatePacienteDto:
+      type: object
+      properties:
+        nome:
+          type: string
+          example: "Paciente Atualizado"
+        email:
+          type: string
+          format: email
+          example: "paciente.atualizado@example.com"
+        telefone:
+          type: string
+          example: "11977776666"
+        dataNascimento:
+          type: string
+          format: date
+          example: "1995-12-25"
+        cpf:
+          type: string
+          example: "111.222.333-44"
+        endereco:
+          type: string
+          example: "Praça da Liberdade, 789"
+      required: [] # Todos os campos são opcionais para atualização
+
+    Medico:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: "f1e2d3c4-b5a6-9876-5432-10fedcba9876"
+        nome:
+          type: string
+          example: "Dr. Carlos Mendes"
+        especialidade:
+          type: string
+          example: "Dermatologia"
+        crm:
+          type: string
+          example: "CRM/RJ 654321"
+        email:
+          type: string
+          format: email
+          example: "carlos.mendes@example.com"
+        telefone:
+          type: string
+          example: "21987651234"
+      required:
+        - nome
+        - especialidade
+        - crm
+        - email
+        - telefone
+    CreateMedicoDto:
+      type: object
+      properties:
+        nome:
+          type: string
+          example: "Dra. Ana Paula"
+        especialidade:
+          type: string
+          example: "Pediatria"
+        crm:
+          type: string
+          example: "CRM/MG 789012"
+        email:
+          type: string
+          format: email
+          example: "ana.paula@example.com"
+        telefone:
+          type: string
+          example: "31911112222"
+      required:
+        - nome
+        - especialidade
+        - crm
+        - email
+        - telefone
+    UpdateMedicoDto:
+      type: object
+      properties:
+        nome:
+          type: string
+          example: "Dra. Ana Paula Atualizada"
+        especialidade:
+          type: string
+          example: "Pediatria Avançada"
+        crm:
+          type: string
+          example: "CRM/MG 789012"
+        email:
+          type: string
+          format: email
+          example: "ana.paula.atualizada@example.com"
+        telefone:
+          type: string
+          example: "31933334444"
+      required: [] # Todos os campos são opcionais para atualização
+
+    Consulta:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          example: "1a2b3c4d-5e6f-7890-abcd-ef1234567890"
+        pacienteId:
+          type: string
+          format: uuid
+          example: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+        medicoId:
+          type: string
+          format: uuid
+          example: "f1e2d3c4-b5a6-9876-5432-10fedcba9876"
+        data:
+          type: string
+          format: date-time
+          example: "2025-12-01T10:00:00Z"
+        motivo:
+          type: string
+          example: "Consulta de rotina"
+        observacoes:
+          type: string
+          nullable: true
+          example: "Paciente com histórico de alergias."
+        status:
+          type: string
+          enum: [ "AGENDADA", "CONCLUIDA", "CANCELADA" ]
+          example: "AGENDADA"
+      required:
+        - pacienteId
+        - medicoId
+        - data
+        - motivo
+        - status
+    CreateConsultaDto:
+      type: object
+      properties:
+        pacienteId:
+          type: string
+          format: uuid
+          example: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+        medicoId:
+          type: string
+          format: uuid
+          example: "f1e2d3c4-b5a6-9876-5432-10fedcba9876"
+        data:
+          type: string
+          format: date-time
+          example: "2025-12-02T14:30:00Z"
+        motivo:
+          type: string
+          example: "Dor de cabeça persistente"
+        observacoes:
+          type: string
+          nullable: true
+          example: "Solicitar exames de imagem."
+        status:
+          type: string
+          enum: [ "AGENDADA", "CONCLUIDA", "CANCELADA" ]
+          example: "AGENDADA"
+      required:
+        - pacienteId
+        - medicoId
+        - data
+        - motivo
+        - status
+    UpdateConsultaDto:
+      type: object
+      properties:
+        pacienteId:
+          type: string
+          format: uuid
+          example: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+        medicoId:
+          type: string
+          format: uuid
+          example: "f1e2d3c4-b5a6-9876-5432-10fedcba9876"
+        data:
+          type: string
+          format: date-time
+          example: "2025-12-03T09:00:00Z"
+        motivo:
+          type: string
+          example: "Retorno para acompanhamento"
+        observacoes:
+          type: string
+          nullable: true
+          example: "Ajustar medicação."
+        status:
+          type: string
+          enum: [ "AGENDADA", "CONCLUIDA", "CANCELADA" ]
+          example: "CONCLUIDA"
+      required: [] # Todos os campos são opcionais para atualização
+
+  responses:
+    BadRequest:
+      description: Requisição inválida
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Dados de entrada inválidos."
+              status:
+                type: number
+                example: 400
+    NotFound:
+      description: Recurso não encontrado
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Recurso não encontrado."
+              status:
+                type: number
+                example: 404
+    InternalServerError:
+      description: Erro interno do servidor
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Erro interno do servidor."
+              status:
+                type: number
+                example: 500
