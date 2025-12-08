@@ -4,7 +4,6 @@ import { useConsultaStore } from '../consultas.store';
 import * as consultasService from '@/services/consultas.service';
 import type { Consulta } from '@/types';
 
-// Mock do serviço de consultas
 vi.mock('@/services/consultas.service', () => ({
   getConsultas: vi.fn(),
   createConsulta: vi.fn(),
@@ -15,7 +14,6 @@ vi.mock('@/services/consultas.service', () => ({
 describe('Consulta Store', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
-    // Resetar os mocks antes de cada teste
     vi.clearAllMocks();
   });
 
@@ -39,7 +37,7 @@ describe('Consulta Store', () => {
     vi.mocked(consultasService).createConsulta.mockResolvedValue(createdConsulta);
 
     const store = useConsultaStore();
-    store.consultas = []; // Garante que a lista esteja vazia inicialmente
+    store.consultas = []; 
     await store.addConsulta(newConsultaData);
 
     expect(consultasService.createConsulta).toHaveBeenCalledWith(newConsultaData);
@@ -92,16 +90,20 @@ describe('Consulta Store', () => {
     expect(store.editingConsulta).toBeNull();
   });
 
-  it('fetchConsultas deve lidar com erros', async () => {
-    const error = new Error('Erro de rede');
-    vi.mocked(consultasService).getConsultas.mockRejectedValue(error);
+  it('fetchConsultas deve lidar com erros e atualizar o estado de erro', async () => {
+    const mockError = new Error('Falha na API de consultas');
+    vi.mocked(consultasService).getConsultas.mockRejectedValue(mockError);
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const store = useConsultaStore();
-    await store.fetchConsultas();
 
+    // Espera que a promessa seja rejeitada e verifica o erro
+    await expect(store.fetchConsultas()).rejects.toThrow(mockError);
+
+    expect(store.isLoading).toBeFalsy();
+    expect(store.error).toBe(mockError.message);
     expect(store.consultas).toEqual([]);
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Erro ao buscar consultas:', error);
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Erro ao buscar consultas', mockError);
     consoleErrorSpy.mockRestore();
   });
 
@@ -115,8 +117,10 @@ describe('Consulta Store', () => {
     const newConsultaData: Omit<Consulta, 'id'> = { pacienteId: 'p3', medicoId: 'm3', data: '2025-12-03', horario: '12:00', motivo: 'Check-up', status: 'AGENDADA' };
 
     await expect(store.addConsulta(newConsultaData)).rejects.toThrow(error);
+    expect(store.isLoading).toBeFalsy();
+    expect(store.error).toBe(error.message);
     expect(store.consultas).toHaveLength(0);
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Erro ao agendar consulta:', error);
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Erro ao agendar consulta', error);
     consoleErrorSpy.mockRestore();
   });
 
@@ -131,8 +135,10 @@ describe('Consulta Store', () => {
     const updatedData: Partial<Consulta> = { horario: '10:30', status: 'CONCLUIDA' };
 
     await expect(store.updateConsulta('1', updatedData)).rejects.toThrow(error);
+    expect(store.isLoading).toBeFalsy();
+    expect(store.error).toBe(error.message);
     expect(store.consultas).toContainEqual(existingConsulta); // O estado não deve ser alterado
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Erro ao atualizar consulta:', error);
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Erro ao atualizar consulta', error);
     consoleErrorSpy.mockRestore();
   });
 
@@ -146,8 +152,10 @@ describe('Consulta Store', () => {
     store.consultas = [existingConsulta];
 
     await expect(store.removeConsulta('1')).rejects.toThrow(error);
+    expect(store.isLoading).toBeFalsy();
+    expect(store.error).toBe(error.message);
     expect(store.consultas).toContainEqual(existingConsulta); // O estado não deve ser alterado
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Erro ao cancelar consulta:', error);
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Erro ao cancelar consulta', error);
     consoleErrorSpy.mockRestore();
   });
 });

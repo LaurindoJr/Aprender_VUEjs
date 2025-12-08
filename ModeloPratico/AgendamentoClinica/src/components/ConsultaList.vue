@@ -1,11 +1,14 @@
 <template>
   <div class="consulta-list">
     <h2>Consultas Agendadas</h2>
-    <div v-if="consultas.length === 0" class="no-consultas">
-      Nenhuma consulta agendada ainda.
+    <div class="search-bar">
+      <input type="text" v-model="searchTerm" placeholder="Buscar agendamento por paciente, médico, motivo ou status..." />
+    </div>
+    <div v-if="filteredConsultas.length === 0" class="no-consultas">
+      Nenhuma consulta encontrada.
     </div>
     <div v-else class="consultas-grid">
-      <div v-for="consulta in consultas" :key="consulta.id" class="consulta-card">
+      <div v-for="consulta in filteredConsultas" :key="consulta.id" class="consulta-card">
         <h3>Consulta ID: {{ consulta.id }}</h3>
         <p><strong>Paciente:</strong> {{ getPacienteNome(consulta.pacienteId) }}</p>
         <p><strong>Médico:</strong> {{ getMedicoNome(consulta.medicoId) }}</p>
@@ -23,13 +26,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, ref, computed } from 'vue'; 
 import { storeToRefs } from 'pinia';
 import { useConsultaStore } from '@/stores/consultas.store';
 import { usePacienteStore } from '@/stores/pacientes.store';
 import { useMedicoStore } from '@/stores/medicos.store';
+import { useToast } from '@/composables/useToast'; 
 import type { Consulta } from '@/types';
 
+const searchTerm = ref('');
 const consultaStore = useConsultaStore();
 const pacienteStore = usePacienteStore();
 const medicoStore = useMedicoStore();
@@ -37,6 +42,20 @@ const medicoStore = useMedicoStore();
 const { consultas } = storeToRefs(consultaStore);
 const { getPacienteNome } = pacienteStore;
 const { getMedicoNome } = medicoStore;
+const toast = useToast();
+
+const filteredConsultas = computed(() => {
+  if (!searchTerm.value) { 
+    return consultas.value;
+  }
+  const lowerCaseSearchTerm = searchTerm.value.toLowerCase(); 
+  return consultas.value.filter(consulta =>
+    getPacienteNome(consulta.pacienteId).toLowerCase().includes(lowerCaseSearchTerm) ||
+    getMedicoNome(consulta.medicoId).toLowerCase().includes(lowerCaseSearchTerm) ||
+    consulta.motivo.toLowerCase().includes(lowerCaseSearchTerm) ||
+    consulta.status.toLowerCase().includes(lowerCaseSearchTerm)
+  );
+});
 
 const formatDateTime = (dateTimeString: string): string => {
   const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -51,9 +70,9 @@ const deleteConsulta = async (id: string) => {
   if (confirm('Tem certeza que deseja cancelar esta consulta?')) {
     try {
       await consultaStore.removeConsulta(id);
-      alert('Consulta cancelada com sucesso!');
+      toast.trigger('Consulta cancelada com sucesso!', 'success'); // Usa toast
     } catch {
-      alert('Erro ao cancelar consulta. Tente novamente.');
+      toast.trigger('Erro ao cancelar consulta. Tente novamente.', 'error'); // Usa toast
     }
   }
 };
@@ -173,5 +192,22 @@ h2 {
 
 .btn-delete:hover {
   background-color: #c0392b;
+}
+
+.search-bar {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.search-bar input {
+  width: 100%;
+  max-width: 500px;
+  padding: 10px 15px;
+  border: 1px solid #ccc;
+  border-radius: 20px; /* Mais arredondado */
+  font-size: 16px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Sombra mais pronunciada */
+  text-align: center; /* Texto centralizado */
 }
 </style>

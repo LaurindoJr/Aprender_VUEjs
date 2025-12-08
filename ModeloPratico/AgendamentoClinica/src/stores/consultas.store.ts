@@ -6,47 +6,53 @@ import { getConsultas, createConsulta, updateConsulta as updateConsultaService, 
 export const useConsultaStore = defineStore('consultas', () => {
   const consultas = ref<Consulta[]>([]);
   const editingConsulta = ref<Consulta | null>(null);
+  const isLoading = ref(false);
+  const error = ref<string | null>(null);
+
+  // Função auxiliar para encapsular a lógica de carregamento e erro
+  const executeAsyncOperation = async (operation: () => Promise<void>, errorMessage: string) => {
+    isLoading.value = true;
+    error.value = null;
+    try {
+      await operation();
+    } catch (err: unknown) {
+      error.value = err instanceof Error ? err.message : errorMessage;
+      console.error(errorMessage, err);
+      throw err; // Re-lança o erro para que os componentes possam tratá-lo se necessário
+    } finally {
+      isLoading.value = false;
+    }
+  };
 
   const fetchConsultas = async () => {
-    try {
+    await executeAsyncOperation(async () => {
       consultas.value = await getConsultas();
-    } catch (error) {
-      console.error('Erro ao buscar consultas:', error);
-    }
+    }, 'Erro ao buscar consultas');
   };
 
   const addConsulta = async (consultaData: Omit<Consulta, 'id'>) => {
-    try {
+    await executeAsyncOperation(async () => {
       const novaConsulta = await createConsulta(consultaData);
       consultas.value.push(novaConsulta);
-    } catch (error) {
-      console.error('Erro ao agendar consulta:', error);
-      throw error;
-    }
+    }, 'Erro ao agendar consulta');
   };
 
   const updateConsulta = async (id: string, consultaData: Partial<Consulta>) => {
-    try {
+    await executeAsyncOperation(async () => {
       const consultaAtualizada = await updateConsultaService(id, consultaData);
       const index = consultas.value.findIndex((c) => c.id === id);
       if (index !== -1) {
         consultas.value[index] = consultaAtualizada;
       }
-      editingConsulta.value = null; 
-    } catch (error) {
-      console.error('Erro ao atualizar consulta:', error);
-      throw error;
-    }
+      editingConsulta.value = null;
+    }, 'Erro ao atualizar consulta');
   };
 
   const removeConsulta = async (id: string) => {
-    try {
+    await executeAsyncOperation(async () => {
       await deleteConsultaService(id);
       consultas.value = consultas.value.filter((c) => c.id !== id);
-    } catch (error) {
-      console.error('Erro ao cancelar consulta:', error);
-      throw error;
-    }
+    }, 'Erro ao cancelar consulta');
   };
 
   const setEditingConsulta = (consulta: Consulta | null) => {
@@ -55,11 +61,13 @@ export const useConsultaStore = defineStore('consultas', () => {
 
   return {
     consultas,
-    editingConsulta, 
+    editingConsulta,
+    isLoading,
+    error,
     fetchConsultas,
     addConsulta,
-    updateConsulta, 
+    updateConsulta,
     removeConsulta,
-    setEditingConsulta, 
+    setEditingConsulta,
   };
 });

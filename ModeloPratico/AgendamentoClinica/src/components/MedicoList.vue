@@ -88,7 +88,7 @@ onMounted(() => {
   fetchMedicos();
 });
 
-watch(medicos, filterMedicos); // Re-filtra quando a lista de médicos muda
+watch(medicos, filterMedicos);
 
 defineExpose({
   fetchMedicos

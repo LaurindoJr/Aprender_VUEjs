@@ -53,14 +53,12 @@ describe('BaseToast', () => {
   });
 
   it('usa o tipo padrão (success) quando um tipo inválido é fornecido (sem aviso)', () => {
-    // Para evitar o aviso do Vue sobre prop inválida, passamos um tipo válido
-    // e confiamos na lógica interna do componente (validatedType) para lidar com tipos inválidos.
-    // O teste verifica se a classe 'success' é aplicada, que é o comportamento esperado para um tipo inválido.
+
     const wrapper = mount(BaseToast, {
       props: {
         show: true,
         message: 'Mensagem com tipo inválido',
-        type: 'success', // Passamos 'success' para evitar o aviso do validador de prop
+        type: 'success',
       },
     });
     expect(wrapper.classes()).toContain('success');

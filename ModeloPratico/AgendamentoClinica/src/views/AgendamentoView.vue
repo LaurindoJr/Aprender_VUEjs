@@ -1,97 +1,69 @@
 <template>
-  <div class="agendamento-container">
-    <div class="header-container">
-      <h1>Agendamento de Consultas</h1>
-      <button @click="openFormForNewConsulta" class="add-button">Cadastrar Agendamento</button>
-    </div>
-    <p>Bem-vindo à página de agendamento de consultas da clínica.</p>
-    
+  <PageContainer
+    title="Agendamento de Consultas"
+    subtitle="Bem-vindo à área de agendamentos da clínica."
+  >
+    <template #actions>
+      <AppButton @click="openNew">Novo Agendamento</AppButton>
+    </template>
+
     <ConsultaList />
 
     <BaseModal :show="showModal" @close="closeModal">
       <template #header>
-        <h2>{{ isEditing ? 'Editar Agendamento' : 'Cadastrar Agendamento' }}</h2>
+        <h2>{{ isEditing ? "Editar Agendamento" : "Novo Agendamento" }}</h2>
       </template>
-      <template #default>
-        <ConsultaForm />
-      </template>
-       <template #footer>
-        <div></div>
-      </template>
+
+      <ConsultaForm @formSubmitted="closeModal" />
     </BaseModal>
 
-    <BaseToast :show="showToast" :message="toastMessage" :type="toastType" />
-  </div>
+    <BaseToast
+      :show="toast.showToast.value"
+      :message="toast.toastMessage.value"
+      :type="toast.toastType.value"
+    />
+  </PageContainer>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { storeToRefs } from 'pinia';
-import ConsultaForm from '../components/ConsultaForm.vue';
-import ConsultaList from '../components/ConsultaList.vue';
-import BaseModal from '../components/common/BaseModal.vue';
-import BaseToast from '../components/common/BaseToast.vue';
-import { useConsultaStore } from '@/stores/consultas.store';
+import PageContainer from '@/components/common/PageContainer.vue'
+import AppButton from '@/components/common/AppButton.vue'
+import ConsultaList from '@/components/ConsultaList.vue'
+import ConsultaForm from '@/components/ConsultaForm.vue'
+import BaseModal from '@/components/common/BaseModal.vue'
+import BaseToast from '@/components/common/BaseToast.vue'
+import { useToast } from '@/composables/useToast'
+import { useConsultaStore } from '@/stores/consultas.store'
 
-const consultaStore = useConsultaStore();
-const { editingConsulta } = storeToRefs(consultaStore);
+import { storeToRefs } from 'pinia'
+import { ref, computed, watch } from 'vue'
 
-const showModal = ref(false);
-const showToast = ref(false);
-const toastMessage = ref('');
-const toastType = ref('success');
+const toast = useToast()
+const consultaStore = useConsultaStore()
 
-const isEditing = computed(() => !!editingConsulta.value);
+const { editingConsulta } = storeToRefs(consultaStore)
 
-// Observa o estado de editingConsulta para abrir/fechar o modal
-watch(editingConsulta, (newValue) => {
-  showModal.value = !!newValue;
-});
+const showModal = ref(false)
+const isEditing = computed(() => !!editingConsulta.value)
 
-const openFormForNewConsulta = () => {
-  consultaStore.setEditingConsulta(null); // Garante que o formulário esteja limpo para nova consulta
-  showModal.value = true;
-};
+watch(editingConsulta, (value) => (showModal.value = !!value))
 
-const closeModal = () => {
-  consultaStore.setEditingConsulta(null); // Limpa o estado de edição ao fechar o modal
-  showModal.value = false;
-};
+function openNew() {
+  consultaStore.setEditingConsulta(null)
+  showModal.value = true
+}
 
+function closeModal() {
+  consultaStore.setEditingConsulta(null)
+  showModal.value = false
+}
 </script>
 
 <style scoped>
-.agendamento-container {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: 'Arial', sans-serif;
-  color: #333;
-}
-
-.header-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.search-bar {
+  margin-top: 20px;
   margin-bottom: 20px;
+  text-align: center;
 }
 
-h1 {
-  color: #2c3e50;
-}
-
-.add-button {
-  background-color: #42b983;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: bold;
-}
-
-.add-button:hover {
-  background-color: #36a374;
-}
 </style>

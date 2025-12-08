@@ -64,10 +64,12 @@ import { useConsultaStore } from '@/stores/consultas.store';
 import { usePacienteStore } from '@/stores/pacientes.store';
 import { useMedicoStore } from '@/stores/medicos.store';
 import type { Consulta } from '@/types';
+import { useToast } from '@/composables/useToast'; // Importa useToast
 
 const consultaStore = useConsultaStore();
 const pacienteStore = usePacienteStore();
 const medicoStore = useMedicoStore();
+const toast = useToast(); // Inicializa useToast
 
 const { pacientes } = storeToRefs(pacienteStore);
 const { medicos } = storeToRefs(medicoStore);
@@ -86,6 +88,8 @@ const defaultForm: Omit<Consulta, 'id'> = {
 const form = ref<Omit<Consulta, 'id'>>(JSON.parse(JSON.stringify(defaultForm)));
 
 const isEditing = computed(() => !!editingConsulta.value);
+
+const emit = defineEmits(['formSubmitted']); // Define o evento customizado
 
 watchEffect(() => {
   if (editingConsulta.value) {
@@ -109,15 +113,16 @@ const submitForm = async () => {
   try {
     if (isEditing.value && editingConsulta.value) {
       await consultaStore.updateConsulta(editingConsulta.value.id, form.value);
-      alert('Consulta atualizada com sucesso!');
+      toast.trigger('Consulta atualizada com sucesso!', 'success'); // Usa toast
     } else {
       await consultaStore.addConsulta(form.value);
-      alert('Consulta agendada com sucesso!');
+      toast.trigger('Consulta agendada com sucesso!', 'success'); // Usa toast
     }
     resetForm();
+    emit('formSubmitted'); // Emite o evento após o sucesso
   } catch (error) {
     console.error('Erro ao processar consulta:', error);
-    alert('Erro ao processar consulta. Verifique os dados e tente novamente.');
+    toast.trigger('Erro ao processar consulta. Verifique os dados e tente novamente.', 'error'); // Usa toast
   }
 };
 

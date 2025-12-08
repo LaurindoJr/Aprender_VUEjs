@@ -1,6 +1,6 @@
 <template>
   <header class="header">
-    <!-- O conteúdo do cabeçalho pode vir aqui -->
+    
   </header>
 </template>
 
@@ -9,8 +9,8 @@
 <style scoped>
 .header {
   grid-area: header;
-  background-color: #f1f1f1;
-  padding: 1rem;
+  background-color: #9c3535;
+  padding: 0;
   border-bottom: 1px solid #ddd;
 }
 </style>

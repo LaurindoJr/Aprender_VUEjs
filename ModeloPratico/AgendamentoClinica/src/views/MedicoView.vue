@@ -1,10 +1,11 @@
 <template>
-  <div class="medico-container">
-    <div class="header-container">
-      <h1>Gestão de Médicos</h1>
-      <button @click="openModal" class="add-button">Cadastrar Médico</button>
-    </div>
-    <p>Gerencie os médicos da clínica aqui.</p>
+  <PageContainer
+    title="Gestão de Médicos"
+    subtitle="Gerencie os médicos da clínica aqui."
+  >
+    <template #actions>
+      <AppButton @click="openModal">Cadastrar Médico</AppButton>
+    </template>
     
     <MedicoList ref="medicoListRef" @editMedico="startEditMedico" />
 
@@ -21,7 +22,7 @@
     </BaseModal>
 
     <BaseToast :show="showToast" :message="toastMessage" :type="toastType" />
-  </div>
+  </PageContainer>
 </template>
 
 <script setup lang="ts">
@@ -30,6 +31,8 @@ import MedicoForm from '../components/MedicoForm.vue';
 import MedicoList from '../components/MedicoList.vue';
 import BaseModal from '../components/common/BaseModal.vue';
 import BaseToast from '../components/common/BaseToast.vue';
+import PageContainer from '@/components/common/PageContainer.vue'; // Importa PageContainer
+import AppButton from '@/components/common/AppButton.vue'; // Importa AppButton
 
 interface Medico {
   id?: string;
@@ -82,37 +85,6 @@ const startEditMedico = (medico: Medico) => {
 </script>
 
 <style scoped>
-.medico-container {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: 'Arial', sans-serif;
-  color: #333;
-}
-
-.header-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-h1 {
-  color: #2c3e50;
-}
-
-.add-button {
-  background-color: #42b983;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: bold;
-}
-
-.add-button:hover {
-  background-color: #36a374;
-}
+/* O estilo .medico-container, .header-container, h1, .add-button não são mais necessários aqui,
+   pois PageContainer e AppButton já fornecem o estilo base. */
 </style>
